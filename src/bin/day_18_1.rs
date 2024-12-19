@@ -5,11 +5,15 @@ fn traverse(
     path: &mut HashMap<(i32, i32), i32>,
     corrupted: &Vec<(i32, i32)>,
     score: i32,
+    min_score: &mut usize,
     end: (i32, i32),
 ) -> Option<i32> {
     path.insert(position, score);
     if position == end {
+        *min_score = score as usize;
         Some(score)
+    } else if min_score != &0 && *min_score < score as usize {
+        None
     } else {
         [(0, 1), (1, 0), (0, -1), (-1, 0)]
             .iter()
@@ -22,7 +26,7 @@ fn traverse(
                     && next.0 >= 0
                     && next.1 >= 0
                 {
-                    traverse(next, path, corrupted, score + 1, end)
+                    traverse(next, path, corrupted, score + 1, min_score, end)
                 } else {
                     None
                 }
@@ -34,6 +38,7 @@ fn main() {
     let position = (0, 0);
     let end = (70, 70);
     let mut path: HashMap<(i32, i32), i32> = HashMap::new();
+    let mut min_score: usize = 0;
     let corrupted: Vec<(i32, i32)> = include_str!("./day_18.input")
         .split("\n")
         .map(|line| {
@@ -44,6 +49,6 @@ fn main() {
         .collect();
     println!(
         "{:?}",
-        traverse(position, &mut path, &corrupted, 0, end).unwrap_or(0)
+        traverse(position, &mut path, &corrupted, 0, &mut min_score, end).unwrap_or(0)
     );
 }
